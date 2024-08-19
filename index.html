@@ -1,0 +1,293 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Interface</title>
+  <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: rgb(255, 0, 200);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .button-group {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+        }
+        button.get { background-color: #4CAF50; }
+        button.post { background-color: #2196F3; }
+        button.put { background-color: #FFC107; }
+        button.delete { background-color: #F44336; }
+        #response {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API Test Interface</h1>
+        <div class="button-group">
+            <button class="get" onclick="getMostPopularCar()">GET Most Popular Car</button>
+            <button class="post" onclick="postCar()">POST Car</button>
+            <button class="put" onclick="putCar()">PUT Car</button>
+            <button class="delete" onclick="deleteCar()">DELETE Car</button>
+        </div>
+        <div id="response"></div>
+    </div>
+
+    <script>
+        const apiUrl = 'http://localhost:3000/mostPopularCar';
+
+        async function getMostPopularCar() {
+            try {
+                const response = await fetch(apiUrl, { method: 'GET' });
+                const data = await response.json();
+                document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('response').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function postCar() {
+            const carData = {
+                color: 'blue',
+                make: 'Toyota',
+                model: 'Corolla',
+                reg_number: 'CJ 12345'
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(carData)
+                });
+                const data = await response.json();
+                document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('response').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function putCar() {
+            const regNumber = prompt('Enter the registration number of the car to update:');
+            const carData = {
+                color: 'green',
+                make: 'Toyota',
+                model: 'Corolla'
+            };
+
+            try {
+                const response = await fetch(`${apiUrl}/${regNumber}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(carData)
+                });
+                const data = await response.json();
+                document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('response').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function deleteCar() {
+            const regNumber = prompt('Enter the registration number of the car to delete:');
+
+            try {
+                const response = await fetch(`${apiUrl}/${regNumber}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('response').textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Management App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.0" defer></script>
+</head>
+<body class="bg-pink-300">
+
+    <!-- Sidebar Navigation -->
+    <div class="flex">
+        <aside class="w-1/4 bg-pink-400 text-white h-screen p-6">
+            <h2 class="text-3xl font-bold mb-8">Car Management</h2>
+            <ul>
+                <li class="mb-4"><a href="#add-car" class="text-lg hover:text-black-300">Add Car</a></li>
+                <li class="mb-4"><a href="#update-car" class="text-lg hover:text-black-300">Update Car</a></li>
+                <li class="mb-4"><a href="#delete-car" class="text-lg hover:text-black-300">Delete Car</a></li>
+                <li><a href="#most-popular-car" class="text-lg hover:text-black-300">Most Popular Car</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="w-3/4 p-10" x-data="carApp()">
+
+            <!-- Add Car Card -->
+            <section id="add-car" class="bg-pink p-8 rounded-lg shadow-md mb-8">
+                <h2 class="text-2xl font-bold text-white-800 mb-6">Add Car</h2>
+                <div class="mb-4">
+                    <label class="block text-white-600">Registration Number:</label>
+                    <input type="text" class="w-full p-4 border border-gray-300 rounded" x-model="newCar.reg_number" placeholder="e.g., ABC1234">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-white-600">Make:</label>
+                    <input type="text" class="w-full p-4 border border-gray-300 rounded" x-model="newCar.make" placeholder="e.g., Toyota">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-white-600">Model:</label>
+                    <input type="text" class="w-full p-4 border border-gray-300 rounded" x-model="newCar.model" placeholder="e.g., Corolla">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-white-600">Color:</label>
+                    <input type="text" class="w-full p-4 border border-gray-300 rounded" x-model="newCar.color" placeholder="e.g., Red">
+                </div>
+                <button @click="addCar()" class="w-full bg-pink-500 text-white py-3 rounded hover:bg-pink-600">Add Car</button>
+            </section>
+
+            <!-- Update Car Card -->
+            <section id="update-car" class="bg-pink p-8 rounded-lg shadow-md mb-8">
+                <h2 class="text-2xl font-bold text-white-800 mb-6">Update Car</h2>
+                <div class="mb-4">
+                    <label class="block text-white-600">Registration Number:</label>
+                    <input type="text" class="w-full p-4 border border-gray-300 rounded" x-model="updateCar.reg_number" placeholder="e.g., ABC1234">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-white-600">Make:</label>
+                    <input type="text" class="w-full p-4 border border-gray-300 rounded" x-model="updateCar.make" placeholder="e.g., Toyota">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-white-600">Model:</label>
+                    <input type="text" class="w-full p-4 border border-gray-300 rounded" x-model="updateCar.model" placeholder="e.g., Corolla">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-600">Color:</label>
+                    <input type="text" class="w-full p-4 border border-gray-300 rounded" x-model="updateCar.color" placeholder="e.g., Red">
+                </div>
+                <button @click="updateCarDetails()" class="w-full bg-pink-500 text-white py-3 rounded hover:bg-pink-600">Update Car</button>
+            </section>
+
+            <!-- Delete Car Card -->
+            <section id="delete-car" class="bg-pink p-8 rounded-lg shadow-md mb-8">
+                <h2 class="text-2xl font-bold text-white-800 mb-6">Delete Car</h2>
+                <div class="mb-4">
+                    <label class="block text-white-600">Registration Number:</label>
+                    <input type="text" class="w-full p-4 border border-gray-300 rounded" x-model="car.reg_number" placeholder="e.g., ABC1234">
+                </div>
+                <button @click="deleteCar()" class="w-full bg-pink-500 text-white py-3 rounded hover:bg-pink-600">Delete Car</button>
+            </section>
+
+            <!-- Most Popular Car Card -->
+            <section id="most-popular-car" class="bg-pink p-8 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold text-white-800 mb-6">Most Popular Car</h2>
+                <button @click="getMostPopularCar()" class="w-full bg-pink-500 text-white py-3 rounded hover:bg-pink-600">Get Most Popular Car</button>
+                <div class="mt-8 p-4 bg-pink-300 rounded-lg shadow-inner">
+                    <h3 class="text-lg font-bold text-white-700">Response</h3>
+                    <pre class="mt-2 p-4 bg-pink-200 rounded overflow-y-auto max-h-40 text-sm text-white-800" x-text="response"></pre>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function carApp() {
+            return {
+                newCar: {
+                    reg_number: '',
+                    make: '',
+                    model: '',
+                    color: ''
+                },
+                updateCar: {
+                    reg_number: '',
+                    make: '',
+                    model: '',
+                    color: ''
+                },
+                car: {
+                    reg_number: ''
+                },
+                response: '',
+                async addCar() {
+                    try {
+                        const res = await axios.post('http://localhost:3000/cars', this.newCar, {
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        this.response = 'Added: ' + JSON.stringify(res.data, null, 2);
+                        this.resetNewCar();
+                    } catch (error) {
+                        this.response = 'Error: ' + JSON.stringify(error.response?.data || error.message, null, 2);
+                    }
+                },
+                async updateCarDetails() {
+                    try {
+                        const res = await axios.put(`http://localhost:3000/cars/${this.updateCar.reg_number}`, this.updateCar, {
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        this.response = 'Updated: ' + JSON.stringify(res.data, null, 2);
+                        this.resetUpdateCar();
+                    } catch (error) {
+                        this.response = 'Error: ' + JSON.stringify(error.response?.data || error.message, null, 2);
+                    }
+                },
+                async getMostPopularCar() {
+                    try {
+                        const res = await axios.get('http://localhost:3000/mostPopularCar');
+                        this.response = `The most popular car make is: ${res.data.popularMake}`;
+                    } catch (error) {
+                        this.response = 'Error: ' + JSON.stringify(error.response?.data || error.message, null, 2);
+                    }
+                },
+                async deleteCar() {
+                    try {
+                        const res = await axios.delete(`http://localhost:3000/cars/${this.car.reg_number}`);
+                        this.response = JSON.stringify(res.data, null, 2);
+                        this.resetCar();
+                    } catch (error) {
+                        this.response = 'Error: ' + JSON.stringify(error.response?.data || error.message, null, 2);
+                    }
+                },
+                resetNewCar() {
+                    this.newCar = { reg_number: '', make: '', model: '', color: '' };
+                },
+                resetUpdateCar() {
+                    this.updateCar = { reg_number: '', make: '', model: '', color: '' };
+                },
+                resetCar() {
+                    this.car = { reg_number: '' };
+                }
+            };
+        }
+    </script>
+</body>
+</html>
